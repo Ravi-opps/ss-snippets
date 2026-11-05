@@ -11,8 +11,9 @@ A React + Vite frontend for exam-ready C network programs, based on [`ss.md`](./
 | 03 | Distance Vector Routing | `distance_vector.c` |
 | 04 | IP Address Class Lookup | `ip_class.c` |
 | 05 | Leaky Bucket Algorithm | `leaky_bucket.c` |
+| 06 | Dijkstra — Full Version (path reconstruction) | `dijkstra_path.c` |
 
-Each section pairs the full C source with the shortcuts and logic notes from the original notes file. The identical duplicate CIDR block in `ss.md` is rendered once, and the Leaky Bucket section was added on request.
+Each section pairs the full C source with the shortcuts and logic notes from the original notes file. The identical duplicate CIDR block in `ss.md` is rendered once, and the Leaky Bucket and full Dijkstra programs were added on request.
 
 ## Features
 
@@ -45,4 +46,4 @@ npm run preview
 
 ## Source
 
-The original four programs and their notes come from `ss.md`. The Leaky Bucket program was added on request. This project only presents them.
+The original four programs and their notes come from `ss.md`. The Leaky Bucket and full Dijkstra programs were added on request. This project only presents them.

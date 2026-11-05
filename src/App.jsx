@@ -298,7 +298,7 @@ export default function App() {
                 C programs for computer networks, <em>made readable.</em>
               </h1>
               <p className="lede">
-                Five exam-ready implementations covering link-state and distance-vector
+                Six exam-ready implementations covering link-state and distance-vector
                 routing, CIDR math, IPv4 class lookup, and leaky-bucket traffic shaping —
                 presented with syntax highlighting and the key logic behind each.
               </p>
@@ -315,7 +315,7 @@ export default function App() {
                 </a>
               </div>
               <ul className="chips" aria-label="Project facts">
-                <li>5 programs</li>
+                <li>6 programs</li>
                 <li>100% C</li>
                 <li>React + Vite</li>
               </ul>

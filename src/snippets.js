@@ -288,4 +288,119 @@ int main() {
       "Drain loop — once input stops, any remaining stored packets keep leaking until the bucket is empty.",
     ],
   },
+  {
+    id: "dijkstra-full",
+    index: "06",
+    tag: "Link State Routing",
+    title: "Dijkstra — Full Version",
+    intro:
+      "The complete link-state implementation: input validation, parent tracking, and full shortest-path reconstruction, with clear reporting for unreachable routers.",
+    filename: "dijkstra_path.c",
+    language: "C",
+    code: String.raw`#include <stdio.h>
+
+#define MAX 10
+#define INF 9999
+
+int main()
+{
+    int cost[MAX][MAX], dist[MAX], visited[MAX];
+    int parent[MAX], path[MAX];
+    int n, source, i, j, count, u, min;
+    int len, v;
+    printf("Enter the number of routers: ");
+    scanf("%d", &n);
+    if (n < 1 || n > MAX)
+    {
+        printf("Invalid number of routers.\n");
+        return 1;
+    }
+    printf("Enter the cost matrix (9999 for no link):\n");
+    for (i = 0; i < n; i++)
+    {
+        for (j = 0; j < n; j++)
+        {
+            scanf("%d", &cost[i][j]);
+            if (i == j)
+                cost[i][j] = 0;
+        }
+    }
+    printf("Enter the source router (0 to %d): ", n - 1);
+    scanf("%d", &source);
+    if (source < 0 || source >= n)
+    {
+        printf("Invalid source router.\n");
+        return 1;
+    }
+    for (i = 0; i < n; i++)
+    {
+        dist[i] = cost[source][i];
+        visited[i] = 0;
+        parent[i] = (i != source && cost[source][i] < INF)
+                    ? source : -1;
+    }
+    dist[source] = 0;
+    visited[source] = 1;
+    for (count = 1; count < n; count++)
+    {
+        min = INF;
+        u = -1;
+        for (i = 0; i < n; i++)
+        {
+            if (!visited[i] && dist[i] < min)
+            {
+                min = dist[i];
+                u = i;
+            }
+        }
+        if (u == -1)
+            break;
+        visited[u] = 1;
+        for (j = 0; j < n; j++)
+        {
+            if (!visited[j] && cost[u][j] < INF &&
+                dist[u] + cost[u][j] < dist[j])
+            {
+                dist[j] = dist[u] + cost[u][j];
+                parent[j] = u;
+            }
+        }
+    }
+    printf("\nShortest paths from Router %d:\n", source);
+    for (i = 0; i < n; i++)
+    {
+        if (i == source)
+            continue;
+        if (dist[i] >= INF)
+        {
+            printf("Router %d: No path available\n", i);
+        }
+        else
+        {
+            len = 0;
+            v = i;
+            while (v != -1)
+            {
+                path[len++] = v;
+                v = parent[v];
+            }
+            printf("Router %d: Path = ", i);
+            for (j = len - 1; j >= 0; j--)
+            {
+                printf("%d", path[j]);
+                if (j > 0)
+                    printf(" -> ");
+            }
+            printf(", Cost = %d\n", dist[i]);
+        }
+    }
+    return 0;
+}`,
+    notesTitle: "What This Version Adds",
+    notes: [
+      "Input validation — rejects router counts outside 1..MAX and source indices outside the matrix before any routing work begins.",
+      "Parent tracking — parent[j] is updated whenever a cheaper route to j is found, forming a predecessor tree for every destination.",
+      "Path reconstruction — walking parent[] backwards into path[] and printing in reverse yields the full source-to-destination route with its total cost.",
+    ],
+  },
 ];
