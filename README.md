@@ -23,6 +23,16 @@ Each section pairs the full C source with the shortcuts and logic notes from the
 - Rendered program output for Distance Vector Routing
 - Responsive layout and visible keyboard focus states
 
+## Kafka lab notes
+
+A separate monochrome terminal-themed route at `/kafka` presents the Kafka lab
+PDFs (Programs 6–9): batch topic creation, fault tolerance simulation, topic
+operations, and Kafka Connect. Every command block has a copy button.
+
+`vercel.json` rewrites `/kafka` to the SPA entry point so the route works on a
+direct visit.
+
+
 ## Run locally
 
 ```bash

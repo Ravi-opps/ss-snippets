@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { snippets } from "./snippets.js";
+import { copyText } from "./clipboard.js";
 
 const REPO_URL = "https://github.com/Ravi-opps/ss-snippets";
 
@@ -43,23 +44,6 @@ function highlightLine(line) {
   if (last < line.length) nodes.push(line.slice(last));
   if (nodes.length === 0) nodes.push(" ");
   return nodes;
-}
-
-async function copyText(text) {
-  try {
-    await navigator.clipboard.writeText(text);
-    return true;
-  } catch {
-    const area = document.createElement("textarea");
-    area.value = text;
-    area.style.position = "fixed";
-    area.style.opacity = "0";
-    document.body.appendChild(area);
-    area.select();
-    const ok = document.execCommand("copy");
-    document.body.removeChild(area);
-    return ok;
-  }
 }
 
 function CopyButton({ text }) {
@@ -199,6 +183,15 @@ function Section({ snippet }) {
   );
 }
 
+function TerminalIcon() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <rect x="2.5" y="4" width="19" height="16" rx="2" fill="none" stroke="currentColor" strokeWidth="1.8" />
+      <path d="M7 9.5l3 2.5-3 2.5M12.5 15H17" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
 function GithubIcon() {
   return (
     <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -282,6 +275,10 @@ export default function App() {
           </nav>
 
           <div className="sidebar-foot">
+            <a className="repo-link" href="/kafka">
+              <TerminalIcon />
+              Kafka lab notes
+            </a>
             <a className="repo-link" href={REPO_URL} target="_blank" rel="noreferrer">
               <GithubIcon />
               View on GitHub
@@ -312,6 +309,10 @@ export default function App() {
                 <a className="btn btn-ghost" href={REPO_URL} target="_blank" rel="noreferrer">
                   <GithubIcon />
                   GitHub repo
+                </a>
+                <a className="btn btn-ghost" href="/kafka">
+                  <TerminalIcon />
+                  Kafka lab notes
                 </a>
               </div>
               <ul className="chips" aria-label="Project facts">

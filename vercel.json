@@ -1,0 +1,6 @@
+{
+  "rewrites": [
+    { "source": "/kafka", "destination": "/index.html" },
+    { "source": "/kafka/", "destination": "/index.html" }
+  ]
+}
