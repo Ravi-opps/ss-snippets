@@ -518,7 +518,7 @@ button:focus-visible {
 
 .code-window {
   overflow: hidden;
-  border: 1px solid rgba(255, 255, 255, 0.09);
+  border: 2px solid rgba(255, 255, 255, 0.18);
   border-radius: 14px;
   background: var(--code-bg);
   box-shadow: 0 22px 50px rgba(0, 0, 0, 0.35);
@@ -742,7 +742,7 @@ button:focus-visible {
 /* Output variant */
 
 .code-window--output {
-  border-color: rgba(94, 234, 212, 0.22);
+  border-color: rgba(94, 234, 212, 0.45);
 }
 
 .code-window--output .code-bar {
