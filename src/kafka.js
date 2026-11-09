@@ -570,20 +570,11 @@ mvn clean compile`
       },
       {
         title: "Start the consumer",
-        body: "Read the counts from WordsWithCountsTopic. The consumer needs a String key deserializer and a Long value deserializer.",
+        body: "Read the counts from WordsWithCountsTopic with the simpler console consumer command.",
         blocks: [
           code(
             "cmd",
-            String.raw`kafka-console-consumer.bat ^
-  --bootstrap-server localhost:9092 ^
-  --topic WordsWithCountsTopic ^
-  --from-beginning ^
-  --key-deserializer org.apache.kafka.common.serialization.StringDeserializer ^
-  --value-deserializer org.apache.kafka.common.serialization.LongDeserializer ^
-  --formatter org.apache.kafka.tools.consumer.DefaultMessageFormatter ^
-  --formatter-property print.key=true ^
-  --formatter-property print.value=true ^
-  --formatter-property key.separator=" : "`
+            "kafka-console-consumer.bat --bootstrap-server localhost:9092 --topic WordsWithCountsTopic --from-beginning --property print.key=true --property print.value=true"
           ),
           output(
             `kafka : 2
@@ -609,7 +600,7 @@ in : 1`
       items: [
         "flatMapValues splits every input line into lowercase words, then groupedBy feeds each word into count().",
         "The word-count application ID identifies this streams job and its local state store; cleanUp() clears any previous local state before starting.",
-        "Counts are produced with String keys and Long values, which is why the console consumer uses LongDeserializer.",
+        "Counts are produced with String keys and Long values; print.key and print.value make the console consumer display both.",
         "The shutdown hook closes the KafkaStreams instance cleanly when the process stops.",
       ],
     },
