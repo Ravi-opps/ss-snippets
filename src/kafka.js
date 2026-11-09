@@ -1,6 +1,7 @@
 export const kafkaMeta = {
   title: "Kafka Lab Notes",
-  tagline: "Batch scripts, fault tolerance, topic operations, and Kafka Connect — straight from the lab PDFs.",
+  tagline:
+    "Batch scripts, fault tolerance, topic operations, Kafka Connect, and Streams — straight from the lab PDFs.",
   eyebrow: "Study notes / Apache Kafka",
 };
 
@@ -417,6 +418,199 @@ C:\kafka\sink.properties`
         "Kafka Connect is the framework; source and sink connectors are the components that actually move data.",
         "The PDF uses the built-in FileStream connectors. They must be available in your Kafka installation.",
         "The PDF has a small naming inconsistency: it initially says student-data but creates File_connect. Use student-data consistently as shown here.",
+      ],
+    },
+  },
+  {
+    id: "program-10",
+    index: "10",
+    pdf: "Program 10 Kafka Streams.pdf",
+    title: "Word Count with Kafka Streams",
+    aim: "Implement a simple word count application using Kafka Streams that reads text messages from an input Kafka topic, counts the occurrences of each word, and publishes the updated counts to an output Kafka topic.",
+    concept:
+      "Kafka Streams reads lines from TextLinesTopic, splits each line into words, groups by word, and keeps a running count. The counts are written to WordsWithCountsTopic with String keys and Long values.",
+    files: [
+      {
+        title: "Add the dependency — pom.xml",
+        body: "Add the Kafka Streams dependency to the project's pom.xml.",
+        block: code(
+          "pom.xml",
+          `<dependency>
+    <groupId>org.apache.kafka</groupId>
+    <artifactId>kafka-streams</artifactId>
+    <version>4.3.1</version>
+</dependency>`
+        ),
+      },
+      {
+        title: "Java program — WordCount.java",
+        body: "Place WordCount.java in the org.example package.",
+        block: code(
+          "WordCount.java",
+          String.raw`package org.example;
+
+import org.apache.kafka.streams.KafkaStreams;
+import org.apache.kafka.streams.StreamsBuilder;
+import org.apache.kafka.streams.Topology;
+import org.apache.kafka.streams.kstream.KStream;
+import org.apache.kafka.streams.kstream.KTable;
+import org.apache.kafka.streams.StreamsConfig;
+import org.apache.kafka.common.serialization.Serdes;
+
+import java.util.List;
+import java.util.Properties;
+
+public class WordCount {
+    public static void main(String[] args) {
+        // Set up Kafka Streams configuration
+        Properties props = new Properties();
+        props.put(StreamsConfig.APPLICATION_ID_CONFIG, "word-count");
+        props.put(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092");
+        props.put(StreamsConfig.DEFAULT_KEY_SERDE_CLASS_CONFIG,
+                Serdes.String().getClass());
+        props.put(StreamsConfig.DEFAULT_VALUE_SERDE_CLASS_CONFIG,
+                Serdes.String().getClass());
+
+        // Build the processing topology
+        StreamsBuilder builder = new StreamsBuilder();
+
+        // Step 1: Read the stream of lines from the input Kafka topic
+        KStream<String, String> textLines = builder.stream("TextLinesTopic");
+
+        // Step 2: Split lines into words, group by word, and count occurrences
+        KTable<String, Long> wordCounts = textLines
+                .peek((key, value) ->
+                        System.out.println("Input: key=" + key + ", value=" + value))
+                .flatMapValues(value -> List.of(value.toLowerCase().split("\\W+"))) // Split the line into words
+                .peek((key, word) ->
+                        System.out.println("After split: word=" + word))
+                .groupBy((key, word) -> word) // Group by word (value)
+                .count(); // Count occurrences of each word
+
+        // Step 3: Output the word counts to a Kafka topic
+        wordCounts.toStream()
+                .peek((word, count) ->
+                        System.out.println("Word Count: word=" + word + ", count=" + count))
+                .to("WordsWithCountsTopic",
+                        org.apache.kafka.streams.kstream.Produced.with(
+                                Serdes.String(),
+                                Serdes.Long()));
+
+        // Build and start the Kafka Streams application
+        Topology topo = builder.build();
+        //System.out.println(topo.describe());
+        KafkaStreams streams = new KafkaStreams(topo, props);
+        streams.cleanUp();
+        streams.start();
+
+        // Add shutdown hook to close the stream gracefully
+        Runtime.getRuntime().addShutdownHook(new Thread(streams::close));
+    }
+}`
+        ),
+      },
+    ],
+    steps: [
+      {
+        title: "Start the Kafka server",
+        body: "Open a second terminal and start the Kafka broker.",
+        blocks: [code("cmd", String.raw`kafka-server-start.bat C:\kafka\config\server.properties`)],
+      },
+      {
+        title: "Create the two topics",
+        body: "Create the input topic TextLinesTopic and the output topic WordsWithCountsTopic.",
+        blocks: [
+          code(
+            "cmd",
+            "kafka-topics.bat --create --topic WordsWithCountsTopic --bootstrap-server localhost:9092"
+          ),
+          code(
+            "cmd",
+            "kafka-topics.bat --create --topic TextLinesTopic --bootstrap-server localhost:9092"
+          ),
+        ],
+      },
+      {
+        title: "Start a console producer",
+        body: "Open the producer and type some messages.",
+        blocks: [
+          code(
+            "cmd",
+            "kafka-console-producer.bat --topic TextLinesTopic --bootstrap-server localhost:9092"
+          ),
+          code(
+            "producer input",
+            `hello world hello kafka
+kafka is good kafka is powerful`
+          ),
+        ],
+      },
+      {
+        title: "Compile the Kafka Streams Java code in VS Code",
+        body: "From the project folder, compile the application with Maven.",
+        blocks: [
+          code(
+            "cmd",
+            `cd demo
+mvn clean compile`
+          ),
+        ],
+      },
+      {
+        title: "Start the word count application",
+        body: "Run the WordCount main class with the Maven exec plugin.",
+        blocks: [
+          code("cmd", 'mvn exec:java "-Dexec.mainClass=org.example.WordCount"'),
+        ],
+      },
+      {
+        title: "Type more messages in the producer window",
+        body: "Send another line so the application keeps updating the counts.",
+        blocks: [code("producer input", "kafka is great students love coding in kafka")],
+      },
+      {
+        title: "Start the consumer",
+        body: "Read the counts from WordsWithCountsTopic. The consumer needs a String key deserializer and a Long value deserializer.",
+        blocks: [
+          code(
+            "cmd",
+            String.raw`kafka-console-consumer.bat ^
+  --bootstrap-server localhost:9092 ^
+  --topic WordsWithCountsTopic ^
+  --from-beginning ^
+  --key-deserializer org.apache.kafka.common.serialization.StringDeserializer ^
+  --value-deserializer org.apache.kafka.common.serialization.LongDeserializer ^
+  --formatter org.apache.kafka.tools.consumer.DefaultMessageFormatter ^
+  --formatter-property print.key=true ^
+  --formatter-property print.value=true ^
+  --formatter-property key.separator=" : "`
+          ),
+          output(
+            `kafka : 2
+is : 1
+great : 1
+students : 1
+love : 1
+coding : 1
+in : 1`
+          ),
+        ],
+        note: "Input at producer: kafka is great students love coding in kafka",
+      },
+    ],
+    flow: [
+      "TextLinesTopic",
+      "KStream · split + groupBy",
+      "count()",
+      "WordsWithCountsTopic",
+    ],
+    notes: {
+      title: "How it works",
+      items: [
+        "flatMapValues splits every input line into lowercase words, then groupedBy feeds each word into count().",
+        "The word-count application ID identifies this streams job and its local state store; cleanUp() clears any previous local state before starting.",
+        "Counts are produced with String keys and Long values, which is why the console consumer uses LongDeserializer.",
+        "The shutdown hook closes the KafkaStreams instance cleanly when the process stops.",
       ],
     },
   },

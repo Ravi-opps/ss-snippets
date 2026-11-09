@@ -313,6 +313,16 @@ body.kx-body ::selection {
   line-height: 1.65;
 }
 
+.kx-setup {
+  display: grid;
+  gap: 1.8rem;
+  margin-top: 1.8rem;
+}
+
+.kx-setup-item {
+  min-width: 0;
+}
+
 .kx-steps {
   display: grid;
   gap: 2rem;

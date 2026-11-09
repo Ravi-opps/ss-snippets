@@ -145,6 +145,23 @@ function Section({ section }) {
         <p className="kx-aim">{section.aim}</p>
         {section.concept && <p className="kx-concept">{section.concept}</p>}
       </header>
+      {section.files && (
+        <div className="kx-setup">
+          <h3 className="kx-table-title">Setup</h3>
+          {section.files.map((file, index) => (
+            <div className="kx-setup-item" key={`${section.id}-file-${index}`}>
+              <div className="kx-step-head">
+                <span className="kx-step-no">file</span>
+                <h3>{file.title}</h3>
+              </div>
+              <p className="kx-step-body">{file.body}</p>
+              <div className="kx-blocks">
+                <TerminalBlock block={file.block} />
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
 
       <div className="kx-steps">
         {section.steps.map((step, index) => (
@@ -269,7 +286,9 @@ export default function KafkaPage() {
           <a className="kx-back" href="/">
             &lt;- back to C snippets
           </a>
-          <span className="kx-source">Based on AAA.md · 4 PDFs</span>
+          <span className="kx-source">
+            Based on lab PDFs · {kafkaSections.length} programs
+          </span>
         </div>
       </aside>
 
@@ -284,7 +303,7 @@ export default function KafkaPage() {
           <h1>{kafkaMeta.title}</h1>
           <p className="kx-lede">{kafkaMeta.tagline}</p>
           <div className="kx-chips" aria-label="Kafka lab facts">
-            <span>4 programs</span>
+            <span>{kafkaSections.length} programs</span>
             <span>Windows CMD</span>
             <span>copy-ready</span>
           </div>
